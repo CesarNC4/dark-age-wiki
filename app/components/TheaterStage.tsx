@@ -13,11 +13,15 @@ interface Section {
   order_index: number;
 }
 
-const FEATURED_SLUGS = ["el-mundo-nuevo", "el-plano-ideatico", "personajes"];
+const FEATURED_SLUGS = [
+  "el-mundo-nuevo",
+  "el-plano-ideatico",
+  "sistema-de-magia",
+];
 const ARC_NUMBERS: Record<string, string> = {
   "el-mundo-nuevo": "I",
   "el-plano-ideatico": "II",
-  personajes: "III",
+  "sistema-de-magia": "III",
 };
 
 export default function TheaterStage({ sections }: { sections: Section[] }) {
