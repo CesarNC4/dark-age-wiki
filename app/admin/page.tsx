@@ -17,5 +17,16 @@ export default async function AdminPage() {
     .select("*, sections(name)")
     .order("created_at", { ascending: false });
 
-  return <AdminDashboard sections={sections || []} articles={articles || []} />;
+  const { data: categories } = await supabaseAdmin
+    .from("categories")
+    .select("*")
+    .order("order_index");
+
+  return (
+    <AdminDashboard
+      sections={sections || []}
+      articles={articles || []}
+      categories={categories || []}
+    />
+  );
 }

@@ -1,13 +1,31 @@
 "use client";
 
-import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
+import FormArcano from "./forms/FormArcano";
+import FormPersonaje from "./forms/FormPersonaje";
+import FormLugar from "./forms/FormLugar";
+import FormMecanica from "./forms/FormMecanica";
+import FormHorror from "./forms/FormHorror";
+import FormFaccion from "./forms/FormFaccion";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+);
 
 interface Section {
   id: string;
   name: string;
   slug: string;
+}
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  form_type: string;
+  section_id: string;
 }
 interface Article {
   id: string;
@@ -17,17 +35,32 @@ interface Article {
   content: string;
   published: boolean;
   section_id: string;
+  category: string;
+  metadata: Record<string, string>;
   sections?: { name: string };
 }
+
+const FORM_LABELS: Record<string, string> = {
+  arcano: "Arcano",
+  personaje: "Personaje",
+  lugar: "Lugar / Nación",
+  mecanica: "Mecánica",
+  horror: "Horror",
+  faccion: "Facción",
+  lore: "Lore General",
+};
 
 export default function AdminDashboard({
   sections,
   articles: initialArticles,
+  categories: initialCategories,
 }: {
   sections: Section[];
   articles: Article[];
+  categories: Category[];
 }) {
   const [articles, setArticles] = useState(initialArticles);
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [view, setView] = useState<"list" | "new" | "edit">("list");
   const [editing, setEditing] = useState<Article | null>(null);
   const [title, setTitle] = useState("");
@@ -35,9 +68,23 @@ export default function AdminDashboard({
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [sectionId, setSectionId] = useState(sections[0]?.id || "");
+  const [categoryId, setCategoryId] = useState("");
   const [published, setPublished] = useState(false);
+  const [metadata, setMetadata] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [filterSection, setFilterSection] = useState("all");
   const router = useRouter();
+
+  const filteredCategories = categories.filter(
+    (c) => c.section_id === sectionId,
+  );
+  const currentCategory = categories.find((c) => c.id === categoryId);
+  const formType = currentCategory?.form_type || "lore";
+
+  const filteredArticles =
+    filterSection === "all"
+      ? articles
+      : articles.filter((a) => a.section_id === filterSection);
 
   function openNew() {
     setEditing(null);
@@ -46,7 +93,9 @@ export default function AdminDashboard({
     setExcerpt("");
     setContent("");
     setSectionId(sections[0]?.id || "");
+    setCategoryId("");
     setPublished(false);
+    setMetadata({});
     setView("new");
   }
 
@@ -57,8 +106,15 @@ export default function AdminDashboard({
     setExcerpt(article.excerpt || "");
     setContent(article.content || "");
     setSectionId(article.section_id);
+    const cat = categories.find((c) => c.slug === article.category);
+    setCategoryId(cat?.id || "");
     setPublished(article.published);
+    setMetadata(article.metadata || {});
     setView("edit");
+  }
+
+  function handleMetadata(key: string, value: string) {
+    setMetadata((prev) => ({ ...prev, [key]: value }));
   }
 
   function generateSlug(t: string) {
@@ -72,12 +128,15 @@ export default function AdminDashboard({
 
   async function handleSave() {
     setSaving(true);
+    const cat = categories.find((c) => c.id === categoryId);
     const data = {
       title,
       slug,
       excerpt,
       content,
       section_id: sectionId,
+      category: cat?.slug || "general",
+      metadata,
       published,
     };
     if (view === "new") {
@@ -109,7 +168,7 @@ export default function AdminDashboard({
     setArticles((prev) => prev.filter((a) => a.id !== id));
   }
 
-  async function handleLogout() {
+  function handleLogout() {
     localStorage.removeItem("dark-age-admin");
     window.location.href = "/admin/login";
   }
@@ -136,6 +195,30 @@ export default function AdminDashboard({
     marginBottom: "0.4rem",
   };
 
+  const selectStyle = { ...inputStyle, cursor: "pointer" };
+
+  function renderForm() {
+    const props = { metadata, onChange: handleMetadata };
+    switch (formType) {
+      case "arcano":
+        return <FormArcano {...props} />;
+      case "personaje":
+        return <FormPersonaje {...props} />;
+      case "lugar":
+        return <FormLugar {...props} />;
+      case "mecanica":
+        return <FormMecanica {...props} />;
+      case "horror":
+        return <FormHorror {...props} />;
+      case "faccion":
+        return <FormFaccion {...props} />;
+      default:
+        return null;
+    }
+  }
+  console.log("categories:", categories.length, categories);
+  console.log("sectionId:", sectionId);
+  console.log("filteredCategories:", filteredCategories.length);
   return (
     <main
       style={{
@@ -159,7 +242,7 @@ export default function AdminDashboard({
       />
 
       <div style={{ position: "relative", zIndex: 2 }}>
-        {/* Header admin */}
+        {/* Header */}
         <div
           style={{
             backgroundColor: "rgba(20,15,8,0.95)",
@@ -223,7 +306,8 @@ export default function AdminDashboard({
           </div>
         </div>
 
-        <div style={{ maxWidth: "900px", margin: "0 auto", padding: "2rem" }}>
+        <div style={{ maxWidth: "960px", margin: "0 auto", padding: "2rem" }}>
+          {/* LISTA */}
           {view === "list" && (
             <>
               <div
@@ -232,18 +316,53 @@ export default function AdminDashboard({
                   justifyContent: "space-between",
                   alignItems: "center",
                   marginBottom: "1.5rem",
+                  gap: "1rem",
+                  flexWrap: "wrap",
                 }}
               >
-                <span
+                <div
                   style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.6rem",
-                    color: "rgba(107,90,46,0.5)",
-                    letterSpacing: "0.2em",
+                    display: "flex",
+                    gap: "0.5rem",
+                    alignItems: "center",
                   }}
                 >
-                  {articles.length} ARTÍCULO{articles.length !== 1 ? "S" : ""}
-                </span>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.6rem",
+                      color: "rgba(107,90,46,0.5)",
+                      letterSpacing: "0.2em",
+                    }}
+                  >
+                    FILTRAR:
+                  </span>
+                  <select
+                    value={filterSection}
+                    onChange={(e) => setFilterSection(e.target.value)}
+                    style={{
+                      padding: "0.4rem 0.75rem",
+                      background: "rgba(20,15,8,0.8)",
+                      border: "1px solid rgba(107,90,46,0.2)",
+                      color: "#e8d5a0",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.6rem",
+                      outline: "none",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <option value="all">Todas las secciones</option>
+                    {sections.map((s) => (
+                      <option
+                        key={s.id}
+                        value={s.id}
+                        style={{ background: "#0a0805" }}
+                      >
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <button
                   onClick={openNew}
                   style={{
@@ -268,7 +387,7 @@ export default function AdminDashboard({
                   gap: "0.5rem",
                 }}
               >
-                {articles.length === 0 && (
+                {filteredArticles.length === 0 && (
                   <div
                     style={{
                       padding: "3rem",
@@ -284,98 +403,123 @@ export default function AdminDashboard({
                         fontStyle: "italic",
                       }}
                     >
-                      No hay artículos aún.
+                      No hay artículos en esta sección.
                     </p>
                   </div>
                 )}
-                {articles.map((article) => (
-                  <div
-                    key={article.id}
-                    style={{
-                      padding: "1rem 1.5rem",
-                      background: "rgba(15,10,5,0.85)",
-                      border: "1px solid rgba(107,90,46,0.15)",
-                      borderLeft: `2px solid ${article.published ? "rgba(107,90,46,0.5)" : "rgba(139,46,46,0.3)"}`,
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: "1rem",
-                    }}
-                  >
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <h3
-                        style={{
-                          fontFamily: "var(--font-title)",
-                          color: "#e8d5a0",
-                          fontSize: "1rem",
-                          marginBottom: "0.2rem",
-                        }}
-                      >
-                        {article.title}
-                      </h3>
-                      <div style={{ display: "flex", gap: "1rem" }}>
-                        <span
+                {filteredArticles.map((article) => {
+                  const cat = categories.find(
+                    (c) => c.slug === article.category,
+                  );
+                  return (
+                    <div
+                      key={article.id}
+                      style={{
+                        padding: "1rem 1.5rem",
+                        background: "rgba(15,10,5,0.85)",
+                        border: "1px solid rgba(107,90,46,0.15)",
+                        borderLeft: `2px solid ${article.published ? "rgba(107,90,46,0.5)" : "rgba(139,46,46,0.3)"}`,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        gap: "1rem",
+                      }}
+                    >
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <h3
                           style={{
-                            fontFamily: "var(--font-mono)",
-                            fontSize: "0.55rem",
-                            color: "rgba(107,90,46,0.4)",
-                            letterSpacing: "0.1em",
+                            fontFamily: "var(--font-title)",
+                            color: "#e8d5a0",
+                            fontSize: "1rem",
+                            marginBottom: "0.25rem",
                           }}
                         >
-                          {article.sections?.name || "—"}
-                        </span>
-                        <span
+                          {article.title}
+                        </h3>
+                        <div
                           style={{
-                            fontFamily: "var(--font-mono)",
-                            fontSize: "0.55rem",
-                            color: article.published
-                              ? "rgba(107,150,46,0.6)"
-                              : "rgba(139,46,46,0.5)",
-                            letterSpacing: "0.1em",
+                            display: "flex",
+                            gap: "1rem",
+                            flexWrap: "wrap",
                           }}
                         >
-                          {article.published ? "PUBLICADO" : "BORRADOR"}
-                        </span>
+                          <span
+                            style={{
+                              fontFamily: "var(--font-mono)",
+                              fontSize: "0.55rem",
+                              color: "rgba(107,90,46,0.4)",
+                              letterSpacing: "0.1em",
+                            }}
+                          >
+                            {article.sections?.name || "—"}
+                          </span>
+                          {cat && (
+                            <span
+                              style={{
+                                fontFamily: "var(--font-mono)",
+                                fontSize: "0.55rem",
+                                color: "rgba(107,90,46,0.3)",
+                                letterSpacing: "0.1em",
+                              }}
+                            >
+                              {cat.name} ·{" "}
+                              {FORM_LABELS[cat.form_type] || cat.form_type}
+                            </span>
+                          )}
+                          <span
+                            style={{
+                              fontFamily: "var(--font-mono)",
+                              fontSize: "0.55rem",
+                              color: article.published
+                                ? "rgba(107,150,46,0.6)"
+                                : "rgba(139,46,46,0.5)",
+                              letterSpacing: "0.1em",
+                            }}
+                          >
+                            {article.published ? "PUBLICADO" : "BORRADOR"}
+                          </span>
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", gap: "0.75rem" }}>
+                        <button
+                          onClick={() => openEdit(article)}
+                          style={{
+                            background: "none",
+                            border: "1px solid rgba(107,90,46,0.3)",
+                            padding: "0.3rem 0.75rem",
+                            color: "rgba(200,169,110,0.6)",
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.55rem",
+                            letterSpacing: "0.1em",
+                            cursor: "pointer",
+                          }}
+                        >
+                          EDITAR
+                        </button>
+                        <button
+                          onClick={() => handleDelete(article.id)}
+                          style={{
+                            background: "none",
+                            border: "1px solid rgba(139,46,46,0.2)",
+                            padding: "0.3rem 0.75rem",
+                            color: "rgba(139,46,46,0.5)",
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.55rem",
+                            letterSpacing: "0.1em",
+                            cursor: "pointer",
+                          }}
+                        >
+                          ELIMINAR
+                        </button>
                       </div>
                     </div>
-                    <div style={{ display: "flex", gap: "0.75rem" }}>
-                      <button
-                        onClick={() => openEdit(article)}
-                        style={{
-                          background: "none",
-                          border: "1px solid rgba(107,90,46,0.3)",
-                          padding: "0.3rem 0.75rem",
-                          color: "rgba(200,169,110,0.6)",
-                          fontFamily: "var(--font-mono)",
-                          fontSize: "0.55rem",
-                          letterSpacing: "0.1em",
-                          cursor: "pointer",
-                        }}
-                      >
-                        EDITAR
-                      </button>
-                      <button
-                        onClick={() => handleDelete(article.id)}
-                        style={{
-                          background: "none",
-                          border: "1px solid rgba(139,46,46,0.2)",
-                          padding: "0.3rem 0.75rem",
-                          color: "rgba(139,46,46,0.5)",
-                          fontFamily: "var(--font-mono)",
-                          fontSize: "0.55rem",
-                          letterSpacing: "0.1em",
-                          cursor: "pointer",
-                        }}
-                      >
-                        ELIMINAR
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </>
           )}
 
+          {/* FORMULARIO */}
           {(view === "new" || view === "edit") && (
             <div>
               <div
@@ -394,6 +538,19 @@ export default function AdminDashboard({
                   }}
                 >
                   {view === "new" ? "Nuevo Artículo" : "Editar Artículo"}
+                  {currentCategory && (
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.6rem",
+                        color: "rgba(139,46,46,0.6)",
+                        letterSpacing: "0.2em",
+                        marginLeft: "1rem",
+                      }}
+                    >
+                      {FORM_LABELS[formType]}
+                    </span>
+                  )}
                 </h2>
                 <button
                   onClick={() => setView("list")}
@@ -418,6 +575,57 @@ export default function AdminDashboard({
                   padding: "2rem",
                 }}
               >
+                {/* Sección y categoría */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "0 1rem",
+                  }}
+                >
+                  <div>
+                    <label style={labelStyle}>SECCIÓN</label>
+                    <select
+                      value={sectionId}
+                      onChange={(e) => {
+                        setSectionId(e.target.value);
+                        setCategoryId("");
+                      }}
+                      style={selectStyle}
+                    >
+                      {sections.map((s) => (
+                        <option
+                          key={s.id}
+                          value={s.id}
+                          style={{ background: "#0a0805" }}
+                        >
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>CATEGORÍA</label>
+                    <select
+                      value={categoryId}
+                      onChange={(e) => setCategoryId(e.target.value)}
+                      style={selectStyle}
+                    >
+                      <option value="">— Seleccionar categoría —</option>
+                      {filteredCategories.map((c) => (
+                        <option
+                          key={c.id}
+                          value={c.id}
+                          style={{ background: "#0a0805" }}
+                        >
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Campos base */}
                 <label style={labelStyle}>TÍTULO</label>
                 <input
                   value={title}
@@ -435,42 +643,50 @@ export default function AdminDashboard({
                   style={inputStyle}
                 />
 
-                <label style={labelStyle}>SECCIÓN</label>
-                <select
-                  value={sectionId}
-                  onChange={(e) => setSectionId(e.target.value)}
-                  style={{ ...inputStyle, cursor: "pointer" }}
-                >
-                  {sections.map((s) => (
-                    <option
-                      key={s.id}
-                      value={s.id}
-                      style={{ background: "#0a0805" }}
-                    >
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-
-                <label style={labelStyle}>EXTRACTO (OPCIONAL)</label>
+                <label style={labelStyle}>EXTRACTO</label>
                 <input
                   value={excerpt}
                   onChange={(e) => setExcerpt(e.target.value)}
                   style={inputStyle}
+                  placeholder="Descripción breve que aparece en los listados"
                 />
 
-                <label style={labelStyle}>CONTENIDO</label>
+                {/* Separador */}
+                {currentCategory && (
+                  <div
+                    style={{
+                      borderTop: "1px solid rgba(107,90,46,0.2)",
+                      margin: "1rem 0 1.5rem",
+                      paddingTop: "1.5rem",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.6rem",
+                        color: "rgba(139,46,46,0.5)",
+                        letterSpacing: "0.2em",
+                        marginBottom: "1.5rem",
+                      }}
+                    >
+                      CAMPOS ESPECÍFICOS —{" "}
+                      {FORM_LABELS[formType]?.toUpperCase()}
+                    </p>
+                    {renderForm()}
+                  </div>
+                )}
+
+                {/* Contenido libre */}
+                <label style={labelStyle}>CONTENIDO ADICIONAL (OPCIONAL)</label>
                 <textarea
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  rows={16}
-                  style={{
-                    ...inputStyle,
-                    resize: "vertical",
-                    lineHeight: "1.7",
-                  }}
+                  rows={8}
+                  style={{ ...inputStyle, resize: "vertical" }}
+                  placeholder="Texto libre, notas narrativas, detalles adicionales..."
                 />
 
+                {/* Publicar */}
                 <div
                   style={{
                     display: "flex",
