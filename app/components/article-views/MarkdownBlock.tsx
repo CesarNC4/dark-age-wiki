@@ -11,21 +11,22 @@ export default function MarkdownBlock({ label, value, accent = false }: Props) {
   return (
     <div
       style={{
-        padding: "1.25rem",
-        background: accent ? "rgba(139,46,46,0.06)" : "rgba(10,8,5,0.7)",
-        border: "1px solid rgba(107,90,46,0.15)",
+        padding: "1.5rem 1.75rem",
+        background: accent ? "rgba(139,46,46,0.07)" : "rgba(10,8,5,0.7)",
+        border: "1px solid rgba(107,90,46,0.18)",
         borderLeft: accent
-          ? "3px solid rgba(139,46,46,0.4)"
-          : "1px solid rgba(107,90,46,0.15)",
+          ? "3px solid rgba(139,46,46,0.5)"
+          : "1px solid rgba(107,90,46,0.18)",
       }}
     >
       <p
         style={{
           fontFamily: "var(--font-mono)",
-          fontSize: "0.55rem",
-          color: accent ? "rgba(139,46,46,0.6)" : "rgba(107,90,46,0.5)",
+          fontSize: "0.7rem",
+          color: accent ? "rgba(180,100,100,0.8)" : "rgba(160,140,100,0.7)",
           letterSpacing: "0.2em",
-          marginBottom: "0.5rem",
+          marginBottom: "0.75rem",
+          textTransform: "uppercase",
         }}
       >
         {label}
@@ -34,9 +35,9 @@ export default function MarkdownBlock({ label, value, accent = false }: Props) {
         className="markdown-content"
         style={{
           fontFamily: "var(--font-body)",
-          color: "rgba(232,224,208,0.85)",
-          fontSize: "0.95rem",
-          lineHeight: "1.7",
+          color: "rgba(240,232,218,0.92)",
+          fontSize: "1rem",
+          lineHeight: "1.85",
         }}
       >
         <ReactMarkdown>{value}</ReactMarkdown>

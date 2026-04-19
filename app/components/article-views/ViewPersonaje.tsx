@@ -23,8 +23,8 @@ export default function ViewPersonaje({ metadata }: Props) {
             <p
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.55rem",
-                color: "rgba(139,46,46,0.6)",
+                fontSize: "0.7rem",
+                color: "rgba(180,100,100,0.85)",
                 letterSpacing: "0.2em",
                 marginBottom: "0.35rem",
               }}
@@ -34,8 +34,8 @@ export default function ViewPersonaje({ metadata }: Props) {
             <p
               style={{
                 fontFamily: "var(--font-body)",
-                color: "#e8d5a0",
-                fontSize: "0.9rem",
+                color: "#f0e8d8",
+                fontSize: "1rem",
               }}
             >
               {metadata.faccion}
@@ -49,8 +49,8 @@ export default function ViewPersonaje({ metadata }: Props) {
             <p
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.55rem",
-                color: "rgba(139,46,46,0.6)",
+                fontSize: "0.7rem",
+                color: "rgba(180,100,100,0.85)",
                 letterSpacing: "0.2em",
                 marginBottom: "0.35rem",
               }}
@@ -60,8 +60,8 @@ export default function ViewPersonaje({ metadata }: Props) {
             <p
               style={{
                 fontFamily: "var(--font-body)",
-                color: "#e8d5a0",
-                fontSize: "0.9rem",
+                color: "#f0e8d8",
+                fontSize: "1rem",
               }}
             >
               {metadata.nacionalidad}
@@ -75,8 +75,8 @@ export default function ViewPersonaje({ metadata }: Props) {
             <p
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.55rem",
-                color: "rgba(139,46,46,0.6)",
+                fontSize: "0.7rem",
+                color: "rgba(180,100,100,0.85)",
                 letterSpacing: "0.2em",
                 marginBottom: "0.35rem",
               }}
@@ -86,8 +86,8 @@ export default function ViewPersonaje({ metadata }: Props) {
             <p
               style={{
                 fontFamily: "var(--font-body)",
-                color: "#e8d5a0",
-                fontSize: "0.9rem",
+                color: "#f0e8d8",
+                fontSize: "1rem",
               }}
             >
               {metadata.senda}
@@ -101,8 +101,8 @@ export default function ViewPersonaje({ metadata }: Props) {
             <p
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.55rem",
-                color: "rgba(139,46,46,0.6)",
+                fontSize: "0.7rem",
+                color: "rgba(180,100,100,0.85)",
                 letterSpacing: "0.2em",
                 marginBottom: "0.35rem",
               }}
@@ -112,8 +112,8 @@ export default function ViewPersonaje({ metadata }: Props) {
             <p
               style={{
                 fontFamily: "var(--font-body)",
-                color: "#e8d5a0",
-                fontSize: "0.9rem",
+                color: "#f0e8d8",
+                fontSize: "1rem",
               }}
             >
               {metadata.frecuencia}
@@ -127,8 +127,8 @@ export default function ViewPersonaje({ metadata }: Props) {
             <p
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.55rem",
-                color: "rgba(139,46,46,0.6)",
+                fontSize: "0.7rem",
+                color: "rgba(180,100,100,0.85)",
                 letterSpacing: "0.2em",
                 marginBottom: "0.35rem",
               }}
@@ -138,8 +138,8 @@ export default function ViewPersonaje({ metadata }: Props) {
             <p
               style={{
                 fontFamily: "var(--font-body)",
-                color: "#e8d5a0",
-                fontSize: "0.9rem",
+                color: "#f0e8d8",
+                fontSize: "1rem",
               }}
             >
               {metadata.herramienta}
@@ -160,8 +160,8 @@ export default function ViewPersonaje({ metadata }: Props) {
           <p
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: "0.55rem",
-              color: "rgba(139,46,46,0.6)",
+              fontSize: "0.7rem",
+              color: "rgba(180,100,100,0.85)",
               letterSpacing: "0.2em",
               marginBottom: "0.35rem",
             }}

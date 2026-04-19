@@ -189,11 +189,11 @@ export default function AdminDashboard({
 
   const labelStyle = {
     fontFamily: "var(--font-mono)",
-    fontSize: "0.6rem",
-    color: "rgba(107,90,46,0.6)",
-    letterSpacing: "0.2em",
+    fontSize: "0.72rem",
+    color: "rgba(180,150,100,0.8)",
+    letterSpacing: "0.18em",
     display: "block",
-    marginBottom: "0.4rem",
+    marginBottom: "0.5rem",
   };
 
   const selectStyle = { ...inputStyle, cursor: "pointer" };
