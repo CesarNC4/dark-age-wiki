@@ -1,5 +1,7 @@
 "use client";
 
+import MarkdownEditor from "../components/MarkdownEditor";
+
 interface Props {
   metadata: Record<string, string>;
   onChange: (key: string, value: string) => void;
@@ -16,7 +18,6 @@ const inputStyle = {
   outline: "none",
   boxSizing: "border-box" as const,
   marginBottom: "1rem",
-  resize: "vertical" as const,
 };
 
 const labelStyle = {
@@ -85,37 +86,33 @@ export default function FormFaccion({ metadata, onChange }: Props) {
         </div>
       </div>
 
-      <label style={labelStyle}>DESCRIPCIÓN Y OBJETIVOS</label>
-      <textarea
-        rows={4}
-        value={metadata.descripcion || ""}
-        onChange={(e) => onChange("descripcion", e.target.value)}
-        style={inputStyle}
-      />
-
-      <label style={labelStyle}>ESTRUCTURA INTERNA</label>
-      <textarea
-        rows={3}
-        value={metadata.estructura || ""}
-        onChange={(e) => onChange("estructura", e.target.value)}
-        style={inputStyle}
-      />
-
       <label style={labelStyle}>MIEMBROS NOTABLES</label>
-      <textarea
-        rows={2}
+      <input
         value={metadata.miembros || ""}
         onChange={(e) => onChange("miembros", e.target.value)}
         style={inputStyle}
         placeholder="Ej: Maven, Julian..."
       />
 
+      <label style={labelStyle}>DESCRIPCIÓN Y OBJETIVOS</label>
+      <MarkdownEditor
+        value={metadata.descripcion || ""}
+        onChange={(v) => onChange("descripcion", v)}
+        rows={5}
+      />
+
+      <label style={labelStyle}>ESTRUCTURA INTERNA</label>
+      <MarkdownEditor
+        value={metadata.estructura || ""}
+        onChange={(v) => onChange("estructura", v)}
+        rows={4}
+      />
+
       <label style={labelStyle}>RELACIONES CON OTRAS FACCIONES</label>
-      <textarea
-        rows={3}
+      <MarkdownEditor
         value={metadata.relaciones || ""}
-        onChange={(e) => onChange("relaciones", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("relaciones", v)}
+        rows={4}
       />
     </div>
   );

@@ -1,5 +1,7 @@
 "use client";
 
+import MarkdownEditor from "../components/MarkdownEditor";
+
 interface Props {
   metadata: Record<string, string>;
   onChange: (key: string, value: string) => void;
@@ -16,7 +18,6 @@ const inputStyle = {
   outline: "none",
   boxSizing: "border-box" as const,
   marginBottom: "1rem",
-  resize: "vertical" as const,
 };
 
 const labelStyle = {
@@ -104,35 +105,31 @@ export default function FormHorror({ metadata, onChange }: Props) {
       </div>
 
       <label style={labelStyle}>DESCRIPCIÓN FÍSICA</label>
-      <textarea
-        rows={4}
+      <MarkdownEditor
         value={metadata.descripcion || ""}
-        onChange={(e) => onChange("descripcion", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("descripcion", v)}
+        rows={5}
       />
 
       <label style={labelStyle}>COMPORTAMIENTO Y MOTIVACIÓN</label>
-      <textarea
-        rows={3}
+      <MarkdownEditor
         value={metadata.comportamiento || ""}
-        onChange={(e) => onChange("comportamiento", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("comportamiento", v)}
+        rows={4}
       />
 
       <label style={labelStyle}>HABILIDADES Y AMENAZAS</label>
-      <textarea
-        rows={3}
+      <MarkdownEditor
         value={metadata.habilidades || ""}
-        onChange={(e) => onChange("habilidades", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("habilidades", v)}
+        rows={4}
       />
 
       <label style={labelStyle}>MÉTODO DE CONTENCIÓN</label>
-      <textarea
-        rows={3}
+      <MarkdownEditor
         value={metadata.contencion || ""}
-        onChange={(e) => onChange("contencion", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("contencion", v)}
+        rows={4}
       />
     </div>
   );

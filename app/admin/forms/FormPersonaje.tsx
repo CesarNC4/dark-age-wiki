@@ -1,5 +1,7 @@
 "use client";
 
+import MarkdownEditor from "../components/MarkdownEditor";
+
 interface Props {
   metadata: Record<string, string>;
   onChange: (key: string, value: string) => void;
@@ -56,7 +58,6 @@ const inputStyle = {
   outline: "none",
   boxSizing: "border-box" as const,
   marginBottom: "1rem",
-  resize: "vertical" as const,
 };
 
 const labelStyle = {
@@ -137,14 +138,6 @@ export default function FormPersonaje({ metadata, onChange }: Props) {
         </div>
       </div>
 
-      <label style={labelStyle}>DESCRIPCIÓN FÍSICA</label>
-      <textarea
-        rows={3}
-        value={metadata.descripcion_fisica || ""}
-        onChange={(e) => onChange("descripcion_fisica", e.target.value)}
-        style={inputStyle}
-      />
-
       <label style={labelStyle}>MANÍA / TIC DE CORDURA</label>
       <input
         value={metadata.mania || ""}
@@ -160,20 +153,25 @@ export default function FormPersonaje({ metadata, onChange }: Props) {
         style={inputStyle}
       />
 
-      <label style={labelStyle}>HISTORIA Y TRASFONDO</label>
-      <textarea
+      <label style={labelStyle}>DESCRIPCIÓN FÍSICA</label>
+      <MarkdownEditor
+        value={metadata.descripcion_fisica || ""}
+        onChange={(v) => onChange("descripcion_fisica", v)}
         rows={5}
+      />
+
+      <label style={labelStyle}>HISTORIA Y TRASFONDO</label>
+      <MarkdownEditor
         value={metadata.historia || ""}
-        onChange={(e) => onChange("historia", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("historia", v)}
+        rows={8}
       />
 
       <label style={labelStyle}>NOTAS ADICIONALES</label>
-      <textarea
-        rows={3}
+      <MarkdownEditor
         value={metadata.notas || ""}
-        onChange={(e) => onChange("notas", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("notas", v)}
+        rows={4}
       />
     </div>
   );

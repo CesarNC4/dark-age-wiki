@@ -1,6 +1,13 @@
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ViewArcano from "@/app/components/article-views/ViewArcano";
+import ViewPersonaje from "@/app/components/article-views/ViewPersonaje";
+import ViewLugar from "@/app/components/article-views/ViewLugar";
+import ViewMecanica from "@/app/components/article-views/ViewMecanica";
+import ViewHorror from "@/app/components/article-views/ViewHorror";
+import ViewFaccion from "@/app/components/article-views/ViewFaccion";
+import ReactMarkdown from "react-markdown";
 
 export default async function ArticlePage({
   params,
@@ -25,6 +32,35 @@ export default async function ArticlePage({
     .single();
 
   if (!article) notFound();
+
+  const { data: category } = await supabase
+    .from("categories")
+    .select("*")
+    .eq("slug", article.category)
+    .eq("section_id", section.id)
+    .single();
+
+  const formType = category?.form_type || "lore";
+  const metadata = article.metadata || {};
+
+  function renderView() {
+    switch (formType) {
+      case "arcano":
+        return <ViewArcano metadata={metadata} />;
+      case "personaje":
+        return <ViewPersonaje metadata={metadata} />;
+      case "lugar":
+        return <ViewLugar metadata={metadata} />;
+      case "mecanica":
+        return <ViewMecanica metadata={metadata} />;
+      case "horror":
+        return <ViewHorror metadata={metadata} />;
+      case "faccion":
+        return <ViewFaccion metadata={metadata} />;
+      default:
+        return null;
+    }
+  }
 
   return (
     <main
@@ -63,7 +99,6 @@ export default async function ArticlePage({
       />
 
       <div style={{ position: "relative", zIndex: 2 }}>
-        {/* Barra superior */}
         <div
           style={{
             backgroundColor: "rgba(139,46,46,0.85)",
@@ -79,7 +114,7 @@ export default async function ArticlePage({
           LOGIA CENTRAL · CONOCIMIENTO RESTRINGIDO · AUTORIZACIÓN NIVEL OMEGA
         </div>
 
-        {/* Navegación breadcrumb */}
+        {/* Breadcrumb */}
         <div
           style={{
             maxWidth: "780px",
@@ -88,6 +123,7 @@ export default async function ArticlePage({
             display: "flex",
             gap: "0.75rem",
             alignItems: "center",
+            flexWrap: "wrap",
           }}
         >
           <Link href="/" style={{ textDecoration: "none" }}>
@@ -125,6 +161,29 @@ export default async function ArticlePage({
               {section.name.toUpperCase()}
             </span>
           </Link>
+          {category && (
+            <>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.6rem",
+                  color: "rgba(107,90,46,0.3)",
+                }}
+              >
+                ·
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.6rem",
+                  color: "rgba(107,90,46,0.4)",
+                  letterSpacing: "0.15em",
+                }}
+              >
+                {category.name.toUpperCase()}
+              </span>
+            </>
+          )}
           <span
             style={{
               fontFamily: "var(--font-mono)",
@@ -146,12 +205,12 @@ export default async function ArticlePage({
           </span>
         </div>
 
-        {/* Header del artículo */}
+        {/* Header */}
         <header
           style={{
             maxWidth: "780px",
             margin: "0 auto",
-            padding: "2.5rem 2rem 2rem",
+            padding: "2rem 2rem 2rem",
             textAlign: "center",
           }}
         >
@@ -192,18 +251,20 @@ export default async function ArticlePage({
             />
           </div>
 
-          <p
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.6rem",
-              color: "rgba(139,46,46,0.6)",
-              letterSpacing: "0.4em",
-              marginBottom: "0.75rem",
-              textTransform: "uppercase",
-            }}
-          >
-            {section.name}
-          </p>
+          {category && (
+            <p
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.6rem",
+                color: "rgba(139,46,46,0.6)",
+                letterSpacing: "0.4em",
+                marginBottom: "0.75rem",
+                textTransform: "uppercase",
+              }}
+            >
+              {category.name}
+            </p>
+          )}
 
           <h1
             style={{
@@ -237,52 +298,6 @@ export default async function ArticlePage({
             </p>
           )}
 
-          {/* Metadatos */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "2rem",
-              marginTop: "1.5rem",
-            }}
-          >
-            <span
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.55rem",
-                color: "rgba(107,90,46,0.4)",
-                letterSpacing: "0.15em",
-              }}
-            >
-              {new Date(article.created_at)
-                .toLocaleDateString("es-ES", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })
-                .toUpperCase()}
-            </span>
-            {article.updated_at !== article.created_at && (
-              <span
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.55rem",
-                  color: "rgba(107,90,46,0.3)",
-                  letterSpacing: "0.15em",
-                }}
-              >
-                ACT.{" "}
-                {new Date(article.updated_at)
-                  .toLocaleDateString("es-ES", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })
-                  .toUpperCase()}
-              </span>
-            )}
-          </div>
-
           <div
             style={{
               display: "flex",
@@ -294,17 +309,17 @@ export default async function ArticlePage({
           >
             <div
               style={{
-                width: "120px",
+                width: "60px",
                 height: "1px",
                 background:
-                  "linear-gradient(to right, transparent, rgba(107,90,46,0.3))",
+                  "linear-gradient(to right, transparent, rgba(107,90,46,0.4))",
               }}
             />
             <span
               style={{
                 fontFamily: "var(--font-mono)",
                 fontSize: "0.55rem",
-                color: "rgba(107,90,46,0.3)",
+                color: "rgba(107,90,46,0.4)",
                 letterSpacing: "0.3em",
               }}
             >
@@ -312,16 +327,16 @@ export default async function ArticlePage({
             </span>
             <div
               style={{
-                width: "120px",
+                width: "60px",
                 height: "1px",
                 background:
-                  "linear-gradient(to left, transparent, rgba(107,90,46,0.3))",
+                  "linear-gradient(to left, transparent, rgba(107,90,46,0.4))",
               }}
             />
           </div>
         </header>
 
-        {/* Contenido del artículo */}
+        {/* Contenido especializado */}
         <article
           style={{
             maxWidth: "780px",
@@ -330,44 +345,51 @@ export default async function ArticlePage({
           }}
         >
           <div
-            style={{
-              background: "rgba(10,8,5,0.75)",
-              border: "1px solid rgba(107,90,46,0.15)",
-              borderTop: "1px solid rgba(139,46,46,0.2)",
-              padding: "2.5rem 3rem",
-              backdropFilter: "blur(4px)",
-            }}
+            style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
           >
-            {article.content ? (
+            {/* Vista especializada */}
+            {renderView()}
+
+            {/* Contenido libre si existe */}
+            {article.content && (
               <div
                 style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "1rem",
-                  color: "rgba(232,224,208,0.9)",
-                  lineHeight: "1.9",
-                  whiteSpace: "pre-wrap",
+                  background: "rgba(10,8,5,0.75)",
+                  border: "1px solid rgba(107,90,46,0.15)",
+                  borderTop: "1px solid rgba(139,46,46,0.2)",
+                  padding: "2rem",
                 }}
               >
-                {article.content}
+                <p
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.55rem",
+                    color: "rgba(107,90,46,0.5)",
+                    letterSpacing: "0.2em",
+                    marginBottom: "1rem",
+                  }}
+                >
+                  NOTAS ADICIONALES
+                </p>
+                <div
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "1rem",
+                    color: "rgba(232,224,208,0.9)",
+                    lineHeight: "1.9",
+                  }}
+                  className="markdown-content"
+                >
+                  <ReactMarkdown>{article.content}</ReactMarkdown>
+                </div>
               </div>
-            ) : (
-              <p
-                style={{
-                  fontFamily: "var(--font-body)",
-                  color: "rgba(138,127,110,0.4)",
-                  fontStyle: "italic",
-                  textAlign: "center",
-                }}
-              >
-                Este registro no contiene información adicional.
-              </p>
             )}
           </div>
 
           {/* Navegación inferior */}
           <div
             style={{
-              marginTop: "2rem",
+              marginTop: "2.5rem",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -399,7 +421,6 @@ export default async function ArticlePage({
           </div>
         </article>
 
-        {/* Pie */}
         <footer
           style={{
             borderTop: "1px solid rgba(42,37,32,0.6)",

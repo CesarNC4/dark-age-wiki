@@ -9,6 +9,7 @@ import FormLugar from "./forms/FormLugar";
 import FormMecanica from "./forms/FormMecanica";
 import FormHorror from "./forms/FormHorror";
 import FormFaccion from "./forms/FormFaccion";
+import MarkdownEditor from "./components/MarkdownEditor";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -678,12 +679,10 @@ export default function AdminDashboard({
 
                 {/* Contenido libre */}
                 <label style={labelStyle}>CONTENIDO ADICIONAL (OPCIONAL)</label>
-                <textarea
+                <MarkdownEditor
                   value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  rows={8}
-                  style={{ ...inputStyle, resize: "vertical" }}
-                  placeholder="Texto libre, notas narrativas, detalles adicionales..."
+                  onChange={setContent}
+                  rows={14}
                 />
 
                 {/* Publicar */}

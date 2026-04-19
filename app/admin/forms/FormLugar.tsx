@@ -1,5 +1,7 @@
 "use client";
 
+import MarkdownEditor from "../components/MarkdownEditor";
+
 interface Props {
   metadata: Record<string, string>;
   onChange: (key: string, value: string) => void;
@@ -16,7 +18,6 @@ const inputStyle = {
   outline: "none",
   boxSizing: "border-box" as const,
   marginBottom: "1rem",
-  resize: "vertical" as const,
 };
 
 const labelStyle = {
@@ -96,27 +97,24 @@ export default function FormLugar({ metadata, onChange }: Props) {
       />
 
       <label style={labelStyle}>DESCRIPCIÓN GENERAL</label>
-      <textarea
-        rows={4}
+      <MarkdownEditor
         value={metadata.descripcion || ""}
-        onChange={(e) => onChange("descripcion", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("descripcion", v)}
+        rows={5}
       />
 
       <label style={labelStyle}>CARACTERÍSTICAS NOTABLES</label>
-      <textarea
-        rows={3}
+      <MarkdownEditor
         value={metadata.caracteristicas || ""}
-        onChange={(e) => onChange("caracteristicas", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("caracteristicas", v)}
+        rows={4}
       />
 
       <label style={labelStyle}>RELEVANCIA EN LA HISTORIA</label>
-      <textarea
-        rows={3}
+      <MarkdownEditor
         value={metadata.relevancia || ""}
-        onChange={(e) => onChange("relevancia", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("relevancia", v)}
+        rows={4}
       />
     </div>
   );

@@ -1,57 +1,32 @@
 "use client";
 
+import MarkdownEditor from "../components/MarkdownEditor";
+
 interface Props {
   metadata: Record<string, string>;
   onChange: (key: string, value: string) => void;
 }
 
-const field = (
-  label: string,
-  key: string,
-  value: string,
-  onChange: (k: string, v: string) => void,
-  multiline = false,
-) => {
-  const style = {
-    width: "100%",
-    padding: "0.75rem 1rem",
-    background: "rgba(20,15,8,0.8)",
-    border: "1px solid rgba(107,90,46,0.2)",
-    color: "#e8d5a0",
-    fontFamily: "var(--font-body)",
-    fontSize: "0.9rem",
-    outline: "none",
-    boxSizing: "border-box" as const,
-    marginBottom: "1rem",
-    resize: "vertical" as const,
-  };
-  const label_style = {
-    fontFamily: "var(--font-mono)",
-    fontSize: "0.6rem",
-    color: "rgba(107,90,46,0.6)",
-    letterSpacing: "0.2em",
-    display: "block",
-    marginBottom: "0.4rem",
-  };
-  return (
-    <div key={key}>
-      <label style={label_style}>{label}</label>
-      {multiline ? (
-        <textarea
-          rows={4}
-          value={value || ""}
-          onChange={(e) => onChange(key, e.target.value)}
-          style={style}
-        />
-      ) : (
-        <input
-          value={value || ""}
-          onChange={(e) => onChange(key, e.target.value)}
-          style={style}
-        />
-      )}
-    </div>
-  );
+const inputStyle = {
+  width: "100%",
+  padding: "0.75rem 1rem",
+  background: "rgba(20,15,8,0.8)",
+  border: "1px solid rgba(107,90,46,0.2)",
+  color: "#e8d5a0",
+  fontFamily: "var(--font-body)",
+  fontSize: "0.9rem",
+  outline: "none",
+  boxSizing: "border-box" as const,
+  marginBottom: "1rem",
+};
+
+const labelStyle = {
+  fontFamily: "var(--font-mono)",
+  fontSize: "0.6rem",
+  color: "rgba(107,90,46,0.6)",
+  letterSpacing: "0.2em",
+  display: "block",
+  marginBottom: "0.4rem",
 };
 
 const GRUPOS = [
@@ -69,56 +44,61 @@ const GRUPOS = [
 export default function FormArcano({ metadata, onChange }: Props) {
   return (
     <div>
-      {field("ALIAS / NOMBRE ALTERNATIVO", "alias", metadata.alias, onChange)}
-      <div style={{ marginBottom: "1rem" }}>
-        <label
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.6rem",
-            color: "rgba(107,90,46,0.6)",
-            letterSpacing: "0.2em",
-            display: "block",
-            marginBottom: "0.4rem",
-          }}
-        >
-          GRUPO
-        </label>
-        <select
-          value={metadata.grupo || ""}
-          onChange={(e) => onChange("grupo", e.target.value)}
-          style={{
-            width: "100%",
-            padding: "0.75rem 1rem",
-            background: "rgba(20,15,8,0.8)",
-            border: "1px solid rgba(107,90,46,0.2)",
-            color: "#e8d5a0",
-            fontFamily: "var(--font-body)",
-            fontSize: "0.9rem",
-            outline: "none",
-            boxSizing: "border-box",
-            marginBottom: "1rem",
-            cursor: "pointer",
-          }}
-        >
-          <option value="">— Seleccionar grupo —</option>
-          {GRUPOS.map((g) => (
-            <option key={g} value={g} style={{ background: "#0a0805" }}>
-              {g}
-            </option>
-          ))}
-        </select>
-      </div>
-      {field("AUTORIDAD", "autoridad", metadata.autoridad, onChange)}
-      {field(
-        "VERDAD IDEÁTICA",
-        "verdad_ideatica",
-        metadata.verdad_ideatica,
-        onChange,
-        true,
-      )}
-      {field("NEGACIÓN", "negacion", metadata.negacion, onChange, true)}
-      {field("DINÁMICA", "dinamica", metadata.dinamica, onChange, true)}
-      {field("ENTIDAD ASOCIADA", "entidad", metadata.entidad, onChange)}
+      <label style={labelStyle}>ALIAS / NOMBRE ALTERNATIVO</label>
+      <input
+        value={metadata.alias || ""}
+        onChange={(e) => onChange("alias", e.target.value)}
+        style={inputStyle}
+      />
+
+      <label style={labelStyle}>GRUPO</label>
+      <select
+        value={metadata.grupo || ""}
+        onChange={(e) => onChange("grupo", e.target.value)}
+        style={{ ...inputStyle, cursor: "pointer" }}
+      >
+        <option value="">— Seleccionar grupo —</option>
+        {GRUPOS.map((g) => (
+          <option key={g} value={g} style={{ background: "#0a0805" }}>
+            {g}
+          </option>
+        ))}
+      </select>
+
+      <label style={labelStyle}>AUTORIDAD</label>
+      <input
+        value={metadata.autoridad || ""}
+        onChange={(e) => onChange("autoridad", e.target.value)}
+        style={inputStyle}
+      />
+
+      <label style={labelStyle}>VERDAD IDEÁTICA</label>
+      <MarkdownEditor
+        value={metadata.verdad_ideatica || ""}
+        onChange={(v) => onChange("verdad_ideatica", v)}
+        rows={4}
+      />
+
+      <label style={labelStyle}>NEGACIÓN</label>
+      <MarkdownEditor
+        value={metadata.negacion || ""}
+        onChange={(v) => onChange("negacion", v)}
+        rows={5}
+      />
+
+      <label style={labelStyle}>DINÁMICA</label>
+      <MarkdownEditor
+        value={metadata.dinamica || ""}
+        onChange={(v) => onChange("dinamica", v)}
+        rows={5}
+      />
+
+      <label style={labelStyle}>ENTIDAD ASOCIADA</label>
+      <input
+        value={metadata.entidad || ""}
+        onChange={(e) => onChange("entidad", e.target.value)}
+        style={inputStyle}
+      />
     </div>
   );
 }

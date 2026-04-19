@@ -1,23 +1,11 @@
 "use client";
 
+import MarkdownEditor from "../components/MarkdownEditor";
+
 interface Props {
   metadata: Record<string, string>;
   onChange: (key: string, value: string) => void;
 }
-
-const inputStyle = {
-  width: "100%",
-  padding: "0.75rem 1rem",
-  background: "rgba(20,15,8,0.8)",
-  border: "1px solid rgba(107,90,46,0.2)",
-  color: "#e8d5a0",
-  fontFamily: "var(--font-body)",
-  fontSize: "0.9rem",
-  outline: "none",
-  boxSizing: "border-box" as const,
-  marginBottom: "1rem",
-  resize: "vertical" as const,
-};
 
 const labelStyle = {
   fontFamily: "var(--font-mono)",
@@ -32,43 +20,38 @@ export default function FormMecanica({ metadata, onChange }: Props) {
   return (
     <div>
       <label style={labelStyle}>DESCRIPCIÓN GENERAL</label>
-      <textarea
-        rows={4}
+      <MarkdownEditor
         value={metadata.descripcion || ""}
-        onChange={(e) => onChange("descripcion", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("descripcion", v)}
+        rows={5}
       />
 
       <label style={labelStyle}>CÓMO FUNCIONA</label>
-      <textarea
-        rows={4}
+      <MarkdownEditor
         value={metadata.funcionamiento || ""}
-        onChange={(e) => onChange("funcionamiento", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("funcionamiento", v)}
+        rows={5}
       />
 
       <label style={labelStyle}>CONSECUENCIAS Y EFECTOS</label>
-      <textarea
-        rows={3}
+      <MarkdownEditor
         value={metadata.consecuencias || ""}
-        onChange={(e) => onChange("consecuencias", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("consecuencias", v)}
+        rows={4}
       />
 
       <label style={labelStyle}>LIMITACIONES</label>
-      <textarea
-        rows={3}
+      <MarkdownEditor
         value={metadata.limitaciones || ""}
-        onChange={(e) => onChange("limitaciones", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("limitaciones", v)}
+        rows={4}
       />
 
       <label style={labelStyle}>NOTAS Y EXCEPCIONES</label>
-      <textarea
-        rows={3}
+      <MarkdownEditor
         value={metadata.notas || ""}
-        onChange={(e) => onChange("notas", e.target.value)}
-        style={inputStyle}
+        onChange={(v) => onChange("notas", v)}
+        rows={4}
       />
     </div>
   );
